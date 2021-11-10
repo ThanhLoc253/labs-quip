@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id Int @default(autoincrement())@id
+  name String @db.VarChar(255)
+  image String
+  catalogNumber String @db.VarChar(10) @map("catalog_number")
+  description String
+  standardPackage Int  @map("standard_package")
+  cubic Float
+  ship Float
+  price Int
+  
+  @@map("products")
+}
+
+model User {
+  id Int @default(autoincrement())@id
+  username String  @db.VarChar(255) @map("user_name") @unique
+  password String  @db.VarChar(255)
+  firstName String @db.VarChar(255) @map("first_name")
+  lastName  String  @db.VarChar(255) @map("last_name")
+
+  @@map("users")
+}
+
+model Brand {
+  id Int @default(autoincrement())@id
+  brandName String @db.VarChar(255) @map("brand_name")
+  image String
+  description String
+  equipments BrandOnEquipments[]
+  applications BrandOnApplications[]
+
+  @@map("brands")
+}
+
+model Application {
+  id Int @default(autoincrement())@id
+  name String @db.VarChar(255) @map("application_name")
+  brands BrandOnApplications[]
+
+  @@map("applications")
+}
+
+model Equipment {
+  id Int @default(autoincrement())@id
+  name String @db.VarChar(255) @map("equipment_name")
+  equipments BrandOnEquipments[]
+
+  @@map("equipments")
+}
+
+model BrandOnApplications {
+  brand Brand @relation(fields: [brandId], references:[id])
+  brandId Int @map("brand_id")
+  application Application @relation(fields: [applicationId], references:[id])
+  applicationId Int @map("application_id")
+
+  @@id([brandId, applicationId])
+
+  @@map("brand_on_applications")
+}
+
+model BrandOnEquipments {
+  brand Brand @relation(fields: [brandId], references:[id])
+  brandId Int @map("brand_id")
+  equipment Equipment @relation(fields: [equipmentId], references:[id])
+  equipmentId Int  @map("equipment_id")
+
+  @@id([brandId, equipmentId])
+
+  @@map("brand_on_equipments")
+}
